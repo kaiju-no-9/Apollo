@@ -1,5 +1,7 @@
 export interface Session {
   id: string;
+  projectId: string;
+  status: "ACTIVE" | "CLOSED";
   createdAt: Date;
   closedAt: Date | null;
 }

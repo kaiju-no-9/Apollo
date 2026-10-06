@@ -1,16 +1,13 @@
-/** Client → Server: user sends a terminal command. */
 export interface TerminalInputMessage {
   type: "terminal_input";
   content: string;
 }
 
-/** Server → Client: streamed terminal output. */
 export interface TerminalOutputMessage {
   type: "terminal_output";
   content: string;
 }
 
-/** Server → Client: session has been closed. */
 export interface SessionClosedMessage {
   type: "session_closed";
 }

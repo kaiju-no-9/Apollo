@@ -1,10 +1,8 @@
 # Remote Controlling Claude Code
 
-Backend engineering contest starter repository.
+Remote terminal application with persistent sessions, command history, and live WebSocket output.
 
-Build the backend that powers a remote terminal — similar to Claude Code Remote. Students implement session management, WebSocket handling, and terminal forwarding during a 2.5-hour contest.
-
-**Students modify backend code only.** The frontend, CLI scripts, and `TerminalRunner` are frozen.
+The frontend and `TerminalRunner` are provided. The backend uses Express, WebSockets, SQLite, and Drizzle ORM.
 
 ## Quick start
 
@@ -64,26 +62,13 @@ Installs dependencies for the root workspace, frontend (`client/`), backend (`se
 7. Browser connects via WebSocket
 8. User types commands; output streams back live
 
-## Student scope
+## Backend behavior
 
-### Implement
-
-- `POST /api/setup` — create a session, return `{ sessionId, url }`
-- `GET /api/sessions/:sessionId/messages` — restore message history
-- `POST /api/sessions/:sessionId/close` — close a session
-- WebSocket handling at `/ws?sessionId=<id>`
-- Session persistence (configure SQLite + Drizzle yourself)
-- Terminal command forwarding via `TerminalRunner`
-
-### Do not modify
-
-- `client/` — frontend is complete
-- `server/src/lib/terminalRunner.ts` — terminal process manager
-- `scripts/remote.ts` — remote session CLI
-
-### Do not pre-install
-
-SQLite, Drizzle, and database tooling are intentionally absent. Configure them during the contest.
+- `POST /api/setup` creates a persisted session and starts its terminal.
+- `GET /api/sessions/:sessionId/messages` returns the saved terminal history.
+- `POST /api/sessions/:sessionId/close` stops the terminal and closes the session.
+- `/ws?sessionId=<id>` accepts terminal commands and streams output to connected clients.
+- SQLite stores projects, sessions, and ordered input/output messages in `server/data/remote-control.sqlite` by default. Set `DB_FILE_NAME` to choose a different database file.
 
 ## WebSocket protocol
 
@@ -112,9 +97,10 @@ The frontend derives `<host>` from `window.location.hostname` so LAN devices wor
 ```
 server/src/
 ├── index.ts                 # Express + WebSocket server bootstrap
-├── routes/                  # HTTP route handlers (currently return 501)
-├── services/                # Business logic (throw TODO)
-├── repositories/            # Data access (throw TODO)
+├── routes/                  # HTTP route handlers
+├── services/                # Session and terminal coordination
+├── repositories/            # Drizzle data access
+├── db/                      # SQLite connection and schema
 ├── lib/terminalRunner.ts    # Shell process manager (complete)
 ├── types/
 └── utils/

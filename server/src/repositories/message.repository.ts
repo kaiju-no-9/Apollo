@@ -1,20 +1,36 @@
+import { randomUUID } from "node:crypto";
 import type { MessageRecord } from "../types/message.types";
+import { asc, eq } from "drizzle-orm";
+import { db } from "../db";
+import { messages } from "../db/schema";
 
 export class MessageRepository {
   async create(
-    _sessionId: string,
-    _type: "input" | "output",
-    _content: string,
+    sessionId: string,
+    type: "input" | "output",
+    content: string,
   ): Promise<MessageRecord> {
-    throw new Error("TODO");
+    const message: MessageRecord = {
+      id: randomUUID(),
+      sessionId,
+      type,
+      content,
+      createdAt: new Date(),
+    };
+    await db.insert(messages).values(message);
+    return message;
   }
 
-  async findBySessionId(_sessionId: string): Promise<MessageRecord[]> {
-    throw new Error("TODO");
+  async findBySessionId(sessionId: string): Promise<MessageRecord[]> {
+    return db
+      .select()
+      .from(messages)
+      .where(eq(messages.sessionId, sessionId))
+      .orderBy(asc(messages.sequence));
   }
 
-  async deleteBySessionId(_sessionId: string): Promise<void> {
-    throw new Error("TODO");
+  async deleteBySessionId(sessionId: string): Promise<void> {
+    await db.delete(messages).where(eq(messages.sessionId, sessionId));
   }
 }
 
